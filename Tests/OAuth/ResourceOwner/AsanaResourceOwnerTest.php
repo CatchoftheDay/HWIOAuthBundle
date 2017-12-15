@@ -15,6 +15,7 @@ use HWI\Bundle\OAuthBundle\OAuth\ResourceOwner\AsanaResourceOwner;
 
 class AsanaResourceOwnerTest extends GenericOAuth2ResourceOwnerTest
 {
+    protected $resourceOwnerClass = AsanaResourceOwner::class;
     protected $userResponse = <<<json
 {
     "data": {
@@ -26,11 +27,6 @@ class AsanaResourceOwnerTest extends GenericOAuth2ResourceOwnerTest
 json;
 
     protected $paths = array(
-        'identifier'      => 'data.id',
+        'identifier' => 'data.id',
     );
-
-    protected function setUpResourceOwner($name, $httpUtils, array $options)
-    {
-        return new AsanaResourceOwner($this->buzzClient, $httpUtils, $options, $name, $this->storage);
-    }
 }

@@ -11,49 +11,33 @@
 
 namespace HWI\Bundle\OAuthBundle\OAuth\ResourceOwner;
 
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Bitbucket2ResourceOwner
+ * Bitbucket2ResourceOwner.
  *
  * @author David Sanchez <david38sanchez@gmail.com>
  */
 class Bitbucket2ResourceOwner extends GenericOAuth2ResourceOwner
 {
-
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected $paths = array(
-        'identifier'     => 'uuid',
-        'nickname'       => 'username',
-        'email'          => 'email',
-        'realname'       => 'display_name',
+        'identifier' => 'uuid',
+        'nickname' => 'username',
+        'email' => 'email',
+        'realname' => 'display_name',
         'profilepicture' => 'links.avatar.href',
     );
 
     /**
-     * {@inheritDoc}
-     */
-    protected function configureOptions(OptionsResolverInterface $resolver)
-    {
-        parent::configureOptions($resolver);
-
-        $resolver->setDefaults(array(
-            'authorization_url' => 'https://bitbucket.org/site/oauth2/authorize',
-            'access_token_url'  => 'https://bitbucket.org/site/oauth2/access_token',
-            'infos_url'         => 'https://api.bitbucket.org/2.0/user',
-            'emails_url'        => 'https://api.bitbucket.org/2.0/user/emails'
-        ));
-    }
-
-    /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getUserInformation(array $accessToken, array $extraParameters = array())
     {
         $response = parent::getUserInformation($accessToken, $extraParameters);
-        $responseData = $response->getResponse();
+        $responseData = $response->getData();
 
         // fetch the email addresses linked to the account
         if (empty($responseData['email'])) {
@@ -64,9 +48,25 @@ class Bitbucket2ResourceOwner extends GenericOAuth2ResourceOwner
                     $responseData['email'] = $email['email'];
                 }
             }
-            $response->setResponse($responseData);
+
+            $response->setData($responseData);
         }
 
         return $response;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function configureOptions(OptionsResolver $resolver)
+    {
+        parent::configureOptions($resolver);
+
+        $resolver->setDefaults(array(
+            'authorization_url' => 'https://bitbucket.org/site/oauth2/authorize',
+            'access_token_url' => 'https://bitbucket.org/site/oauth2/access_token',
+            'infos_url' => 'https://api.bitbucket.org/2.0/user',
+            'emails_url' => 'https://api.bitbucket.org/2.0/user/emails',
+        ));
     }
 }

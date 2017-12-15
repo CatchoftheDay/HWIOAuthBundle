@@ -12,47 +12,44 @@
 namespace HWI\Bundle\OAuthBundle\OAuth\ResourceOwner;
 
 use HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\OAuthToken;
-use Buzz\Message\RequestInterface as HttpRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * LinkedinResourceOwner
- *
  * @author Guillaume Potier <guillaume@wisembly.com>
  */
 class WunderlistResourceOwner extends GenericOAuth2ResourceOwner
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected $paths = array(
-        'identifier'     => 'id',
-        'nickname'       => 'name',
-        'realname'       => 'name',
-        'email'          => 'email',
+        'identifier' => 'id',
+        'nickname' => 'name',
+        'realname' => 'name',
+        'email' => 'email',
     );
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function doGetUserInformationRequest($url, array $parameters = array())
     {
         return $this->httpRequest($url, null, array(
-            'X-Client-ID'       => $this->options['client_id'],
-            'X-Access-Token'    => $parameters['access_token'],
+            'X-Client-ID' => $this->options['client_id'],
+            'X-Access-Token' => $parameters['access_token'],
         ));
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getUserInformation(array $accessToken, array $extraParameters = array())
     {
         $content = $this->doGetUserInformationRequest($this->options['infos_url'], array('access_token' => $accessToken['access_token']));
 
         $response = $this->getUserResponse();
-        $response->setResponse($content->getContent());
-
+        $response->setData($content instanceof ResponseInterface ? (string) $content->getBody() : $content);
         $response->setResourceOwner($this);
         $response->setOAuthToken(new OAuthToken($accessToken));
 
@@ -60,7 +57,7 @@ class WunderlistResourceOwner extends GenericOAuth2ResourceOwner
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function configureOptions(OptionsResolver $resolver)
     {
@@ -68,8 +65,8 @@ class WunderlistResourceOwner extends GenericOAuth2ResourceOwner
 
         $resolver->setDefaults(array(
             'authorization_url' => 'https://www.wunderlist.com/oauth/authorize',
-            'access_token_url'  => 'https://www.wunderlist.com/oauth/access_token',
-            'infos_url'         => 'https://a.wunderlist.com/api/v1/user',
+            'access_token_url' => 'https://www.wunderlist.com/oauth/access_token',
+            'infos_url' => 'https://a.wunderlist.com/api/v1/user',
         ));
     }
 }
