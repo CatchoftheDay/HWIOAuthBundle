@@ -107,7 +107,9 @@ class AccountNotLinkedException extends UsernameNotFoundException implements OAu
             $parentData
         ) = unserialize($str);
 
-        $this->setToken($token);
+        if ($token instanceof TokenInterface) {
+            $this->setToken($token);
+        }
 
         parent::unserialize($parentData);
     }
